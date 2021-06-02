@@ -42,8 +42,6 @@
         |dev? $ quote (def dev? true)
         |site $ quote
           def site $ {} (:dev-ui "\"http://localhost:8100/main.css") (:release-ui "\"http://cdn.tiye.me/favored-fonts/main.css") (:cdn-url "\"http://cdn.tiye.me/phlox/") (:title "\"Phlox") (:icon "\"http://cdn.tiye.me/logo/quamolit.png") (:storage-key "\"phlox")
-        |pen-options $ quote
-          def pen-options $ {} (:size 40) (:unit 12)
       :proc $ quote ()
     |app.main $ {}
       :ns $ quote
@@ -67,7 +65,7 @@
                 op-time $ js/Date.now
               reset! *store $ updater @*store op op-data op-id op-time
         |main! $ quote
-          defn main! () (; js/console.log PIXI) (load-console-formatter!)
+          defn main! () (load-console-formatter!)
             -> (new FontFaceObserver/default "\"Josefin Sans") (.!load)
               .!then $ fn (event) (render-app!)
             add-watch *store :change $ fn (store prev) (render-app!)
@@ -89,7 +87,7 @@
           "\"shortid" :as shortid
           respo-ui.core :as ui
           memof.alias :refer $ memof-call
-          app.config :refer $ pen-options
+          [] app.comp.from-cell :refer $ [] comp-from-cell
       :defs $ {}
         |comp-container $ quote
           defn comp-container (store)
@@ -99,27 +97,21 @@
                 states $ :states store
                 state $ either (:data states)
                   {} $ :v 0
-                unit $ :unit pen-options
               container ({})
-                create-list :container
-                  {} $ :position ([] 50 50)
-                  ->
-                    range $ :size pen-options
-                    map $ fn (idx)
-                      [] idx $ create-list :container
-                        {} $ :position
-                          [] 0 $ * (* unit) idx
-                        ->
-                          range $ :size pen-options
-                          map $ fn (j)
-                            [] j $ comp-cell idx j
-                              [] (* j unit) 10
-                comp-button $ {} (:text "\"Change")
-                  :position $ [] 560 100
-                  :on-pointertap $ fn (e d!)
-                    d! cursor $ assoc state :v (rand-int 100)
+                comp-from-cell $ >> states :from-cell
+      :proc $ quote ()
+    |app.comp.from-cell $ {}
+      :ns $ quote
+        ns app.comp.from-cell $ :require
+          phlox.core :refer $ g hslx rect circle text container graphics create-list defcomp >>
+          phlox.comp.button :refer $ comp-button
+          phlox.comp.drag-point :refer $ comp-drag-point
+          "\"shortid" :as shortid
+          respo-ui.core :as ui
+          memof.alias :refer $ memof-call
+      :defs $ {}
         |comp-cell $ quote
-          defcomp comp-cell (i j position)
+          defcomp comp-cell (i j position base rg)
             container
               {} $ :position position
               circle $ {} (:radius 2)
@@ -131,25 +123,99 @@
                   g :move-to $ [] 0 0
                   g :line-style $ {}
                     :color $ rand-color
-                    :width 2
+                    :width 3
                     :alpha 1
-                  g :line-to $ rand-move
+                  g :line-to $ rand-move base rg
                 :position $ [] 0 0
-        |rand-move $ quote
-          defn rand-move () $ let
-              u $ :unit pen-options
-            case-default (rand-int 8)
-              do $ [] 6 2
-              0 $ [] 0 u
-              1 $ [] 0 (negate u)
-              2 $ [] u 0
-              3 $ [] (negate u) 0
-              4 $ [] u u
-              5 $ [] (negate u) (negate u)
-              6 $ [] u (negate u)
-              7 $ [] (negate u) u
-              8 $ [] (negate u) u
         |rand-color $ quote
           defn rand-color () $ hslx (rand 360) (rand 100)
             + 30 $ rand 20
+        |rand-move $ quote
+          defn rand-move (base rg)
+            let
+                u $ :unit pen-options
+              case-default
+                + base $ rand-int rg
+                do $ [] 0 0
+                0 $ [] 0 u
+                1 $ [] 0 (negate u)
+                2 $ [] u 0
+                3 $ [] (negate u) 0
+                4 $ [] u u
+                5 $ [] (negate u) (negate u)
+                6 $ [] u (negate u)
+                7 $ [] (negate u) u
+                8 $ [] u (* 2 u)
+                9 $ [] (* 2 u) u
+                10 $ [] (negate u) (* 2 u)
+                11 $ [] (* -2 u) u
+                12 $ [] (negate u) (* -2 u)
+                13 $ [] (* -2 u) (negate u)
+                14 $ [] (* 2 u) (negate u)
+                15 $ [] u (* -2 u)
+        |comp-from-cell $ quote
+          defn comp-from-cell (states)
+            let
+                cursor $ :cursor states
+                state $ either (:data states)
+                  {} (:v 0) (:base 4) (:range 4)
+                unit $ :unit pen-options
+              container ({})
+                create-list :container
+                  {} $ :position ([] 160 40)
+                  ->
+                    range $ :size pen-options
+                    map $ fn (idx)
+                      [] idx $ create-list :container
+                        {} $ :position
+                          [] 0 $ * (* unit) idx
+                        ->
+                          range $ :size pen-options
+                          map $ fn (j)
+                            [] j $ comp-cell idx j
+                              [] (* j unit) 10
+                              :base state
+                              :range state
+                comp-button $ {} (:text "\"Square")
+                  :position $ [] 40 40
+                  :on-pointertap $ fn (e d!)
+                    d! cursor $ merge state
+                      {}
+                        :v $ rand-int 100
+                        :base 0
+                        :range 4
+                comp-button $ {} (:text "\"Rhombus")
+                  :position $ [] 40 80
+                  :on-pointertap $ fn (e d!)
+                    d! cursor $ merge state
+                      {}
+                        :v $ rand-int 100
+                        :base 4
+                        :range 4
+                comp-button $ {} (:text "\"Mixed")
+                  :position $ [] 40 120
+                  :on-pointertap $ fn (e d!)
+                    d! cursor $ merge state
+                      {}
+                        :v $ rand-int 100
+                        :base 0
+                        :range 8
+                comp-button $ {} (:text "\"Longer")
+                  :position $ [] 40 160
+                  :on-pointertap $ fn (e d!)
+                    d! cursor $ merge state
+                      {}
+                        :v $ rand-int 100
+                        :base 8
+                        :range 4
+                comp-button $ {} (:text "\"Random")
+                  :position $ [] 40 200
+                  :on-pointertap $ fn (e d!)
+                    d! cursor $ merge state
+                      {}
+                        :v $ rand-int 100
+                        :base 0
+                        :range 16
+        |pen-options $ quote
+          def pen-options $ {} (:size 40) (:unit 16)
       :proc $ quote ()
