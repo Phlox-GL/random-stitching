@@ -17,15 +17,15 @@
                   .unwrap $ get store :states
                   :: 'Map 'Tag 'Dynamic
               container ({})
-                comp-from-cell $ >> states :from-cell
+                comp-from-cell $ decode-map-as (>> states :from-cell) (:: 'Map 'Tag 'Dynamic)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'phlox.schema/PhloxElement)
             :args $ [] $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require
-            [] phlox.core :refer $ [] container >>
-            [] app.comp.from-cell :refer $ [] comp-from-cell
+            phlox.core :refer $ container >>
+            app.comp.from-cell :refer $ comp-from-cell
     'app.comp.from-cell $ %{} 'FileEntry
       :defs $ {}
         'comp-cell $ %{} 'CodeEntry (:doc |)
@@ -127,7 +127,7 @@
                 u $ .unwrap $ get pen-options :unit
               case-default
                 + base $ rand-int rg
-                do $ [] 0 0
+                [] 0 0
                 0 $ [] 0 u
                 1 $ [] 0 $ negate u
                 2 $ [] u 0
@@ -151,10 +151,10 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.from-cell
           :require
-            [] phlox.core :refer $ [] g hslx circle container graphics create-list defcomp
-            [] phlox.comp.button :refer $ [] comp-button
-            [] app.schema :refer $ [] CellState normalize-state initial-state
-            [] |@calcit/std :as std
+            phlox.core :refer $ g hslx circle container graphics create-list defcomp
+            phlox.comp.button :refer $ comp-button
+            app.schema :refer $ CellState normalize-state initial-state
+            |@calcit/std :as std
     'app.config $ %{} 'FileEntry
       :defs $ {}
         'dev? $ %{} 'CodeEntry (:doc |)
@@ -189,22 +189,23 @@
               reset! *store $ updater @*store op
                 decode-map-as (shortid/generate) 'String
                 decode-map-as (js/Date.now) 'Number
+              , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'Enum
             :features $ #{} :js-ffi
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!)
-            whenFontsReady $ fn () $ render-app!
-            add-watch *store :change $ fn (store prev) (render-app!)
+            whenFontsReady $ fn (font) (render-app!)
+            add-watch! *store :change $ fn (store prev) (render-app!)
             println "|App Started"
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
             :features $ #{} :js-ffi
         'reload! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn reload! () (println "|Code updated.") (clear-phlox-caches!) (remove-watch *store :change)
-            add-watch *store :change $ fn (store prev) (render-app!)
+          :code $ quote $ defn reload! () (println "|Code updated.") (clear-phlox-caches!) (remove-watch! *store :change)
+            add-watch! *store :change $ fn (store prev) (render-app!)
             render-app!
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -219,13 +220,13 @@
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
-          :require ([] |shortid :as shortid)
-            [] phlox.core :refer $ [] render! clear-phlox-caches!
-            [] app.comp.container :refer $ [] comp-container
-            [] app.schema :as schema
-            [] app.config :refer $ [] dev?
-            [] app.updater :refer $ [] updater
-            [] |../assets/fonts.mjs :refer $ [] whenFontsReady
+          :require (|shortid :as shortid)
+            phlox.core :refer $ render! clear-phlox-caches!
+            app.comp.container :refer $ comp-container
+            app.schema :as schema
+            app.config :refer $ dev?
+            app.updater :refer $ updater
+            |../assets/fonts.mjs :refer $ whenFontsReady
     'app.schema $ %{} 'FileEntry
       :defs $ {}
         'CellState $ %{} 'CodeEntry (:doc |)
@@ -263,7 +264,8 @@
         'normalize-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn normalize-state (data)
             if (struct? data)
-              if (&struct:matches? data CellState) (assert-type data 'app.schema/CellState) (raise |Unexpected-CellState)
+              struct-match data (CellState state state)
+                _ unexpected $ raise |Unexpected-CellState
               decode-map-as data 'app.schema/CellState
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'app.schema/CellState)
@@ -305,4 +307,4 @@
             :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
-          :require $ [] phlox.cursor :refer $ [] update-states
+          :require $ phlox.cursor :refer $ update-states
