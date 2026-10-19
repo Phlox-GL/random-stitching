@@ -49,7 +49,7 @@ jobs:
           git diff --exit-code -- calcit.cirru
           calcit --check-only --all-defs
           calcit fix --workflow strict --verify
-          calcit analyze check-public --ns app.comp.container --ns app.comp.from-cell --ns app.config --ns app.main --ns app.schema --ns app.updater --summary-only --format json
+          calcit --check-only --ns app.comp.container --ns app.comp.from-cell --ns app.config --ns app.main --ns app.schema --ns app.updater --summary-only --format json
       - name: Select frontend CDN path
         id: asset-path
         env:
