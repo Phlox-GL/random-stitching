@@ -125,9 +125,8 @@
           :code $ quote $ defn rand-move (base rg)
             let
                 u $ .unwrap $ get pen-options :unit
-              case-default
+              match
                 + base $ rand-int rg
-                [] 0 0
                 0 $ [] 0 u
                 1 $ [] 0 $ negate u
                 2 $ [] u 0
@@ -144,6 +143,7 @@
                 13 $ [] (* -2 u) (negate u)
                 14 $ [] (* 2 u) (negate u)
                 15 $ [] u $ * -2 u
+                _ $ [] 0 0
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'Number 'Number
