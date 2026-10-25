@@ -28,6 +28,8 @@ CI 使用严格依赖解析、全部定义检查、完整 strict 工作流、应
 
 Workflow https://github.com/Quamolit/phlox-workflow
 
+后续源码清理仅把 `app.main/*store` 的 `defatom` 改为首选 `defref`，名称、初值、类型、watcher、随机调用与网格公式均不变。官方 Linux 0.30.1 的原完整 strict、公开定义检查及构建通过，改写前后 61 个生成 JS 文件的哈希一致；原 Snapshot 无附带测试，不将空选择计为通过，也不替代实际五模式/热重载验收。依赖、工作流与部署路径不改，不增加永久测试或校验脚本。
+
 ### License
 
 MIT
