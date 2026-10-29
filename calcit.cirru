@@ -19,8 +19,7 @@
               container ({})
                 comp-from-cell $ decode-map-as (>> states :from-cell) (:: 'Map 'Tag 'Dynamic)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'phlox.schema/PhloxElement)
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) (-> phlox.schema/PhloxElement)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require
@@ -46,8 +45,7 @@
                   g :line-to $ rand-move base rg
                 :position $ [] 0 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'phlox.schema/PhloxElement)
-            :args $ [] 'Number 'Number (:: 'List 'Number) 'Number 'Number
+          :schema $ quote $ Fn Number Number (List Number) Number Number (-> phlox.schema/PhloxElement)
         'comp-from-cell $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-from-cell (states)
             let
@@ -93,34 +91,28 @@
                   :on-pointertap $ fn (e d!)
                     d! $ :: :states cursor $ CellState :v (rand-int 100) :base 0 :range 16
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'phlox.schema/PhloxElement)
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) (-> phlox.schema/PhloxElement)
         'pen-options $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def pen-options
             {} (:size 40) (:unit 16)
           :examples $ []
-          :schema $ :: 'Map 'Tag 'Number
+          :schema $ quote $ Map Tag Number
         'rand $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rand (bound)
             decode-map-as (std/rand bound) 'Number
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (-> Number) (:features :js-ffi)
         'rand-color $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rand-color ()
             hslx (rand 360) (rand 100)
               + 30 $ rand 20
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
         'rand-int $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rand-int (bound)
             decode-map-as (std/rand_int bound) 'Number
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (-> Number) (:features :js-ffi)
         'rand-move $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rand-move (base rg)
             let
@@ -145,9 +137,8 @@
                 15 $ [] u $ * -2 u
                 _ $ [] 0 0
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Number 'Number
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn Number Number
+            -> $ List Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.from-cell
           :require
@@ -161,7 +152,7 @@
           :code $ quote $ def dev?
             = |dev $ .unwrap-or (get-env |mode) |release
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
         'site $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def site
             {} (:dev-ui |http://localhost:8100/main.css) (:release-ui |http://cdn.tiye.me/favored-fonts/main.css)
@@ -170,7 +161,7 @@
               :icon |http://cdn.tiye.me/logo/quamolit.png
               :storage-key |phlox
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.config
     'app.main $ %{} 'FileEntry
@@ -178,7 +169,7 @@
         '*store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *store schema/store
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Ref (Map Tag Dynamic)
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (raw-op)
             let
@@ -191,33 +182,25 @@
                 decode-map-as (js/Date.now) 'Number
               , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Enum
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Enum (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!)
             whenFontsReady $ fn (font) (render-app!)
             add-watch! *store :change $ fn (store prev) (render-app!)
             println "|App Started"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (println "|Code updated.") (clear-phlox-caches!) (remove-watch! *store :change)
             add-watch! *store :change $ fn (store prev) (render-app!)
             render-app!
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             render! (comp-container @*store) dispatch! $ {}
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require (|shortid :as shortid)
@@ -232,17 +215,19 @@
         'CellState $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct CellState (:v 'Number) (:base 'Number) (:range 'Number)
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op (:add-x) (:tab 'Tag) (:toggle-keyboard) (:counted)
-            :states (:: 'List 'Dynamic) 'Dynamic
-            :hydrate-storage $ :: 'Map 'Tag 'Dynamic
+            :states
+              quote $ List Dynamic
+              , 'Dynamic
+            :hydrate-storage $ quote $ Map Tag Dynamic
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'initial-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def initial-state (CellState :v 0 :base 4 :range 4)
           :examples $ []
-          :schema $ :: 'app.schema/CellState
+          :schema $ quote app.schema/CellState
         'normalize-op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn normalize-op (op)
             match op
@@ -259,8 +244,7 @@
                 Op :hydrate-storage $ decode-map-as data $ :: 'Map 'Tag 'Dynamic
               _ $ raise |Unknown-operation
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.schema/Op)
-            :args $ [] 'Enum
+          :schema $ quote $ Fn Enum (-> app.schema/Op)
         'normalize-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn normalize-state (data)
             if (struct? data)
@@ -268,15 +252,14 @@
                 _ unexpected $ raise |Unexpected-CellState
               decode-map-as data 'app.schema/CellState
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.schema/CellState)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> app.schema/CellState)
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             {} (:tab :drafts) (:x 0) (:keyboard-on? false) (:counted 0)
               :states $ {}
               :cursor $ []
           :examples $ []
-          :schema $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.schema
     'app.updater $ %{} 'FileEntry
@@ -302,9 +285,8 @@
               (:states cursor state) (update-states store cursor state)
               (:hydrate-storage data) data
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'app.schema/Op 'String 'Number
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) app.schema/Op String Number
+            -> $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
           :require $ phlox.cursor :refer $ update-states
