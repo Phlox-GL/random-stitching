@@ -8,7 +8,7 @@ Calcit CLI 与 `@calcit/procs` 精确配对正式 `0.32.1`，使用已发布 Phl
 和 Touch Control `0.0.35`，传递 JS-FFI `0.2.9` / Pointed Prompt `0.0.24`。
 请重新安装完整模块图并生成 JS，不混用旧 alpha 或生成缓存。
 
-官方 formatter 转换 CellState 中两处旧类型表示；22 个定义的 schema 和原附带
+官方 formatter 转换 Op 中 List／Map payload 的两处旧类型表示；22 个定义的 schema 和原附带
 元数据不变，保留 40×40 网格、16 个方向、五种模式、随机调用和颜色/坐标公式。
 Caps strict 从正式 tags 真安装四模块图，工具链配对、181 个全定义、22 个公开定义、
 完整 strict（diagnostics 为空）、canonical、不可变安装和构建通过。
