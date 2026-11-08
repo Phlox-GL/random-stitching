@@ -12,14 +12,10 @@
       :defs $ {} $ 'comp-container
         %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-container (store)
-            let
-                states $ decode-map-as
-                  .unwrap $ get store :states
-                  :: 'Map 'Tag 'Dynamic
-              container ({})
-                comp-from-cell $ decode-map-as (>> states :from-cell) (:: 'Map 'Tag 'Dynamic)
+            container ({})
+              comp-from-cell $ >> (:states store) :from-cell
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (-> phlox.schema/PhloxElement)
+          :schema $ quote $ Fn app.schema/Store (-> phlox.schema/PhloxElement)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require
@@ -51,7 +47,7 @@
             let
                 cursor $ decode-map-as
                   .unwrap $ get states :cursor
-                  :: 'List 'Dynamic
+                  List Dynamic
                 state $ normalize-state $ .unwrap-or (get states :data) initial-state
                 unit $ .unwrap $ get pen-options :unit
               container ({})
@@ -73,25 +69,25 @@
                 comp-button $ {} (:text |Square)
                   :position $ [] -240 -280
                   :on-pointertap $ fn (e d!)
-                    d! $ :: :states cursor $ CellState :v (rand-int 100) :base 0 :range 4
+                    d! $ app.schema/Op :cell-state cursor $ CellState :v (rand-int 100) :base 0 :range 4
                 comp-button $ {} (:text |Rhombus)
                   :position $ [] -240 -320
                   :on-pointertap $ fn (e d!)
-                    d! $ :: :states cursor $ CellState :v (rand-int 100) :base 4 :range 4
+                    d! $ app.schema/Op :cell-state cursor $ CellState :v (rand-int 100) :base 4 :range 4
                 comp-button $ {} (:text |Mixed)
                   :position $ [] -240 -240
                   :on-pointertap $ fn (e d!)
-                    d! $ :: :states cursor $ CellState :v (rand-int 100) :base 0 :range 8
+                    d! $ app.schema/Op :cell-state cursor $ CellState :v (rand-int 100) :base 0 :range 8
                 comp-button $ {} (:text |Longer)
                   :position $ [] -240 -160
                   :on-pointertap $ fn (e d!)
-                    d! $ :: :states cursor $ CellState :v (rand-int 100) :base 8 :range 4
+                    d! $ app.schema/Op :cell-state cursor $ CellState :v (rand-int 100) :base 8 :range 4
                 comp-button $ {} (:text |Random)
                   :position $ [] -240 -200
                   :on-pointertap $ fn (e d!)
-                    d! $ :: :states cursor $ CellState :v (rand-int 100) :base 0 :range 16
+                    d! $ app.schema/Op :cell-state cursor $ CellState :v (rand-int 100) :base 0 :range 16
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (-> phlox.schema/PhloxElement)
+          :schema $ quote $ Fn (Map Dynamic Dynamic) (-> phlox.schema/PhloxElement)
         'pen-options $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def pen-options
             {} (:size 40) (:unit 16)
@@ -169,7 +165,7 @@
         '*store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *store schema/store
           :examples $ []
-          :schema $ quote $ Ref (Map Tag Dynamic)
+          :schema $ quote $ Ref app.schema/Store
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (raw-op)
             let
@@ -182,7 +178,7 @@
                 decode-map-as (js/Date.now) 'Number
               , &unit
           :examples $ []
-          :schema $ quote $ Fn Enum (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn AnyEnum (-> Unit) (:features :js-ffi) (:open :decode)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!)
             whenFontsReady $ fn (font) (render-app!)
@@ -213,17 +209,22 @@
     'app.schema $ %{} 'FileEntry
       :defs $ {}
         'CellState $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct CellState (:v 'Number) (:base 'Number) (:range 'Number)
+          :code $ quote $ defstruct CellState (:v Number) (:base Number) (:range Number)
           :examples $ []
           :schema $ quote StructDef
         'Op $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defenum Op (:add-x) (:tab 'Tag) (:toggle-keyboard) (:counted)
-            :states
-              quote $ List Dynamic
-              , 'Dynamic
-            :hydrate-storage $ quote $ Map Tag Dynamic
+          :code $ quote $ defenum Op (:add-x) (:tab Tag) (:toggle-keyboard) (:counted)
+            :cell-state (List Dynamic) app.schema/CellState
+            :states (List Dynamic) Dynamic
+            :hydrate-storage app.schema/Store
           :examples $ []
           :schema $ quote EnumDef
+        'Store $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defstruct Store (:tab Tag) (:x Number) (:keyboard-on? Bool) (:counted Number)
+            :states $ Map Dynamic Dynamic
+            :cursor $ List Dynamic
+          :examples $ []
+          :schema $ quote StructDef
         'initial-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def initial-state (CellState :v 0 :base 4 :range 4)
           :examples $ []
@@ -233,18 +234,24 @@
             match op
               (:add-x) (Op :add-x)
               (:tab tab)
-                Op :tab $ decode-map-as tab 'Tag
+                Op :tab $ decode-map-as tab Tag
               (:toggle-keyboard) (Op :toggle-keyboard)
               (:counted) (Op :counted)
+              (:cell-state cursor cell)
+                Op :cell-state
+                  decode-map-as cursor $ List Dynamic
+                  normalize-state cell
               (:states cursor data)
                 Op :states
-                  decode-map-as cursor $ :: 'List 'Dynamic
+                  decode-map-as cursor $ List Dynamic
                   , data
               (:hydrate-storage data)
-                Op :hydrate-storage $ decode-map-as data $ :: 'Map 'Tag 'Dynamic
+                Op :hydrate-storage $ decode-map-as
+                  if (struct? data) (&struct:to-map data) data
+                  , Store
               _ $ raise |Unknown-operation
           :examples $ []
-          :schema $ quote $ Fn Enum (-> app.schema/Op)
+          :schema $ quote $ Fn AnyEnum (-> app.schema/Op) (:open :decode)
         'normalize-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn normalize-state (data)
             if (struct? data)
@@ -252,41 +259,39 @@
                 _ unexpected $ raise |Unexpected-CellState
               decode-map-as data 'app.schema/CellState
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> app.schema/CellState)
+          :schema $ quote $ Fn Dynamic (-> app.schema/CellState) (:open :decode)
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
-            {} (:tab :drafts) (:x 0) (:keyboard-on? false) (:counted 0)
-              :states $ {}
-              :cursor $ []
+            Store :tab :drafts :x 0 :keyboard-on? false :counted 0 :states ({}) :cursor $ []
           :examples $ []
-          :schema $ quote $ Map Tag Dynamic
+          :schema $ quote app.schema/Store
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.schema
     'app.updater $ %{} 'FileEntry
-      :defs $ {} $ 'updater
-        %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn updater (store op op-id op-time)
+      :defs $ {}
+        'updater $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn updater (store op _op-id _op-time)
             match op
               (:add-x)
                 let
-                    x $ decode-map-as
-                      .unwrap $ get store :x
-                      , 'Number
+                    x $ :x store
                   assoc store :x $ if (> x 10) 0 $ + x 1
               (:tab tab) (assoc store :tab tab)
               (:toggle-keyboard)
-                assoc store :keyboard-on? $ not $ decode-map-as
-                  .unwrap $ get store :keyboard-on?
-                  , 'Bool
+                assoc store :keyboard-on? $ not $ :keyboard-on? store
               (:counted)
-                assoc store :counted $ inc $ decode-map-as
-                  .unwrap $ get store :counted
-                  , 'Number
-              (:states cursor state) (update-states store cursor state)
+                assoc store :counted $ inc $ :counted store
+              (:cell-state cursor cell) (write-state store cursor cell)
+              (:states cursor state) (write-state store cursor state)
               (:hydrate-storage data) data
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) app.schema/Op String Number
-            -> $ Map Tag Dynamic
+          :schema $ quote $ Fn app.schema/Store app.schema/Op String Number (-> app.schema/Store)
+        'write-state $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn write-state (store cursor data)
+            assoc store :states $ decode-map-as
+              assoc-in (:states store) (conj cursor :data) data
+              Map Dynamic Dynamic
+          :examples $ []
+          :schema $ quote $ Fn app.schema/Store (List Dynamic) Dynamic (-> app.schema/Store)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
-          :require $ phlox.cursor :refer $ update-states
