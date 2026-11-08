@@ -47,7 +47,7 @@
             let
                 cursor $ decode-map-as
                   .unwrap $ get states :cursor
-                  List Dynamic
+                  List Tag
                 state $ normalize-state $ .unwrap-or (get states :data) initial-state
                 unit $ .unwrap $ get pen-options :unit
               container ({})
@@ -214,7 +214,7 @@
           :schema $ quote StructDef
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op (:add-x) (:tab Tag) (:toggle-keyboard) (:counted)
-            :cell-state (List Dynamic) app.schema/CellState
+            :cell-state (List Tag) app.schema/CellState
             :states (List Dynamic) Dynamic
             :hydrate-storage app.schema/Store
           :examples $ []
@@ -239,7 +239,7 @@
               (:counted) (Op :counted)
               (:cell-state cursor cell)
                 Op :cell-state
-                  decode-map-as cursor $ List Dynamic
+                  decode-map-as cursor $ List Tag
                   normalize-state cell
               (:states cursor data)
                 Op :states

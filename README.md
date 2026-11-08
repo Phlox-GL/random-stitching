@@ -6,7 +6,7 @@ Phlox workflow in [calcit-js](https://github.com/Quamolit/phlox.calcit)
 
 请配套使用正式 Calcit 和 `@calcit/procs` 0.37.0，重新安装依赖并构建。Phlox 更新到 0.9.3，Touch Control 更新到 0.0.39。40×40 网格、16 种方向、五种模式和原随机公式沿用现有行为。
 
-状态使用具名 `Store`，图案按钮派发携带 `CellState` 的操作。Phlox 的旧事件仍在边界校验，组件状态树保留异构数据。旧恢复 Map 须包含完整的 Store 字段。项目无附带测试，沿用原类型检查、完整 strict 和构建门禁。
+状态使用具名 `Store`，图案按钮派发携带 `CellState` 与 `List<Tag>` 路径的操作。Phlox 的通用状态事件仍接收混合键路径，组件状态树保留异构数据。旧恢复 Map 须包含完整的 Store 字段。项目无附带测试，沿用原类型检查、完整 strict 和构建门禁。
 
 ### Usage
 
@@ -23,7 +23,7 @@ yarn dev
 
 `yarn dev` 先编译再启动 Vite；修改 Calcit 时，在另一终端运行 `yarn watch`，无需 concurrently。`yarn build` 仅编译一次，依赖安装不重复塞进编译命令。
 
-前端资源使用 `https://cos-sh.tiye.me/Phlox-GL/random-stitching/`，Vite base 与 COS prefix 一致。main push 使用 COS action v1.2.0 的 public-base-url 内置 verify；PR 只做类型检查与相对 URL 构建，保存短期原始产物供验收，不读取部署 secrets。上传排队、不取消，生产发布前检查当前 main，过期构建同时跳过 COS 和服务器同步。没有额外上传验证脚本，原服务器 dist/* 与 rsync destination 保留。Josefin Sans 字体与共享 CSS 路径未改。
+前端资源使用 `https://cos-sh.tiye.me/Phlox-GL/random-stitching/`，Vite base 与 COS prefix 一致。main push 使用 COS action v1.3.0 的 public-base-url 内置 verify；PR 只做类型检查与相对 URL 构建，保存短期原始产物供验收，不读取部署 secrets。上传排队、不取消，生产发布前检查当前 main，过期构建同时跳过 COS 和服务器同步。没有额外上传验证脚本，原服务器 dist/* 与 rsync destination 保留。Josefin Sans 字体与共享 CSS 路径未改。
 
 ### 历史 0.31.0 验收
 
