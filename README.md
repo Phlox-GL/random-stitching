@@ -2,7 +2,11 @@
 Phlox workflow in [calcit-js](https://github.com/Quamolit/phlox.calcit)
 ----
 
-### 0.37.0 升级对使用者的影响
+### Calcit 0.40.0 升级
+
+请同步更新 Calcit CLI 和 `@calcit/procs`，重新安装并构建。五种图案模式和随机公式沿用原行为。图案渲染接收已校验的 Tag 路径与 `CellState`，通用 Phlox 状态事件继续接收混合键。
+
+### 历史：0.37.0 升级对使用者的影响
 
 请配套使用正式 Calcit 和 `@calcit/procs` 0.37.0，重新安装依赖并构建。Phlox 更新到 0.9.3，Touch Control 更新到 0.0.39。40×40 网格、16 种方向、五种模式和原随机公式沿用现有行为。
 
@@ -19,7 +23,7 @@ yarn build
 yarn dev
 ```
 
-使用精确配对的正式 Calcit / `@calcit/procs` 0.37.0、Node.js 24、Yarn 4.18.0 与 Vite。源码只维护 `calcit.cirru` / `deps.cirru`，Snapshot 使用 Calcit CLI 编辑。
+使用精确配对的正式 Calcit / `@calcit/procs` 0.40.0、Node.js 24、Yarn 4.18.0 与 Vite。源码只维护 `calcit.cirru` / `deps.cirru`，Snapshot 使用 Calcit CLI 编辑。
 
 `yarn dev` 先编译再启动 Vite；修改 Calcit 时，在另一终端运行 `yarn watch`，无需 concurrently。`yarn build` 仅编译一次，依赖安装不重复塞进编译命令。
 

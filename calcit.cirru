@@ -12,8 +12,13 @@
       :defs $ {} $ 'comp-container
         %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-container (store)
-            container ({})
-              comp-from-cell $ >> (:states store) :from-cell
+            let
+                states $ >> (:states store) :from-cell
+                cursor $ decode-map-as
+                  .unwrap $ get states :cursor
+                  List Tag
+                state $ app.schema/normalize-state $ .unwrap-or (get states :data) app.schema/initial-state
+              container ({}) (comp-from-cell cursor state)
           :examples $ []
           :schema $ quote $ Fn app.schema/Store (-> phlox.schema/PhloxElement)
       :ns $ %{} 'NsEntry (:doc |)
@@ -43,12 +48,8 @@
           :examples $ []
           :schema $ quote $ Fn Number Number (List Number) Number Number (-> phlox.schema/PhloxElement)
         'comp-from-cell $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn comp-from-cell (states)
+          :code $ quote $ defn comp-from-cell (cursor state)
             let
-                cursor $ decode-map-as
-                  .unwrap $ get states :cursor
-                  List Tag
-                state $ normalize-state $ .unwrap-or (get states :data) initial-state
                 unit $ .unwrap $ get pen-options :unit
               container ({})
                 create-list :container
@@ -87,7 +88,7 @@
                   :on-pointertap $ fn (e d!)
                     d! $ app.schema/Op :cell-state cursor $ CellState :v (rand-int 100) :base 0 :range 16
           :examples $ []
-          :schema $ quote $ Fn (Map Dynamic Dynamic) (-> phlox.schema/PhloxElement)
+          :schema $ quote $ Fn (List Tag) app.schema/CellState (-> phlox.schema/PhloxElement)
         'pen-options $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def pen-options
             {} (:size 40) (:unit 16)
@@ -140,7 +141,7 @@
           :require
             phlox.core :refer $ g hslx circle container graphics create-list defcomp
             phlox.comp.button :refer $ comp-button
-            app.schema :refer $ CellState normalize-state initial-state
+            app.schema :refer $ CellState
             |@calcit/std :as std
     'app.config $ %{} 'FileEntry
       :defs $ {}
