@@ -2,15 +2,13 @@
 Phlox workflow in [calcit-js](https://github.com/Quamolit/phlox.calcit)
 ----
 
-### Calcit 0.40.0 升级
+### Calcit 0.41.0 升级
 
-请同步更新 Calcit CLI 和 `@calcit/procs`，重新安装并构建。五种图案模式和随机公式沿用原行为。图案渲染接收已校验的 Tag 路径与 `CellState`，通用 Phlox 状态事件继续接收混合键。
+请同步更新 Calcit CLI 和 `@calcit/procs`，重新安装、构建并刷新页面。40×40 网格、16 种方向和五种模式沿用现有随机公式。
 
-### 历史：0.37.0 升级对使用者的影响
+五个按钮直接派发携带 `CellState` 的具名 `Op`，`Store` 直接保存当前图案状态。移除页面未使用的通用游标事件、计数、键盘开关和存档恢复入口。维护下游分支时，如果曾使用这些模板入口，需要在自己的应用中补充对应状态和操作。
 
-请配套使用正式 Calcit 和 `@calcit/procs` 0.37.0，重新安装依赖并构建。Phlox 更新到 0.9.3，Touch Control 更新到 0.0.39。40×40 网格、16 种方向、五种模式和原随机公式沿用现有行为。
-
-状态使用具名 `Store`，图案按钮派发携带 `CellState` 与 `List<Tag>` 路径的操作。Phlox 的通用状态事件仍接收混合键路径，组件状态树保留异构数据。旧恢复 Map 须包含完整的 Store 字段。项目无附带测试，沿用原类型检查、完整 strict 和构建门禁。
+项目无附带测试，沿用原全定义、指定命名空间、完整 strict 和构建门禁。
 
 ### Usage
 
@@ -23,7 +21,7 @@ yarn build
 yarn dev
 ```
 
-使用精确配对的正式 Calcit / `@calcit/procs` 0.40.0、Node.js 24、Yarn 4.18.0 与 Vite。源码只维护 `calcit.cirru` / `deps.cirru`，Snapshot 使用 Calcit CLI 编辑。
+使用精确配对的正式 Calcit / `@calcit/procs` 0.41.0、Node.js 24、Yarn 4.18.0 与 Vite。源码只维护 `calcit.cirru` / `deps.cirru`，Snapshot 使用 Calcit CLI 编辑。
 
 `yarn dev` 先编译再启动 Vite；修改 Calcit 时，在另一终端运行 `yarn watch`，无需 concurrently。`yarn build` 仅编译一次，依赖安装不重复塞进编译命令。
 
