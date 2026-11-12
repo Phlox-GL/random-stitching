@@ -2,7 +2,7 @@
 Phlox workflow in [calcit-js](https://github.com/Quamolit/phlox.calcit)
 ----
 
-### Calcit 0.41.1 升级
+### Calcit 0.42.1 升级
 
 请同步更新 Calcit CLI 和 `@calcit/procs`，重新安装、构建并刷新页面。40×40 网格、16 种方向和五种模式沿用现有随机公式。
 
@@ -21,7 +21,7 @@ yarn build
 yarn dev
 ```
 
-使用精确配对的正式 Calcit / `@calcit/procs` 0.41.1、Node.js 24、Yarn 4.18.0 与 Vite。源码只维护 `calcit.cirru` / `deps.cirru`，Snapshot 使用 Calcit CLI 编辑。
+使用精确配对的正式 Calcit / `@calcit/procs` 0.42.1、Node.js 24、Yarn 4.18.0 与 Vite。源码只维护 `calcit.cirru` / `deps.cirru`，Snapshot 使用 Calcit CLI 编辑。
 
 `yarn dev` 先编译再启动 Vite；修改 Calcit 时，在另一终端运行 `yarn watch`，无需 concurrently。`yarn build` 仅编译一次，依赖安装不重复塞进编译命令。
 
