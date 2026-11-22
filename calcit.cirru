@@ -15,7 +15,7 @@
             container ({})
               comp-from-cell $ :cell store
           :examples $ []
-          :schema $ quote $ Fn app.schema/Store (-> phlox.schema/PhloxElement)
+          :schema $ quote $ Fn app.schema/Store (-> phlox.schema/PhloxElement) (:features :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require
@@ -83,7 +83,7 @@
                   :on-pointertap $ fn (e d!)
                     d! $ app.schema/Op :cell-state $ CellState :v (rand-int 100) :base 0 :range 16
           :examples $ []
-          :schema $ quote $ Fn CellState (-> phlox.schema/PhloxElement)
+          :schema $ quote $ Fn CellState (-> phlox.schema/PhloxElement) (:features :state)
         'pen-options $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def pen-options
             {} (:size 40) (:unit 16)
